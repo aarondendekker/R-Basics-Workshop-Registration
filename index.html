@@ -272,35 +272,38 @@
         // ============================================
         
         const CONFIG = {
-            // Your Google Apps Script Web App URL (paste it here, ending in /exec)
-            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzSy5mtb-79w9rHs4MojVxkbVY_r42hu2GmZeW55hcNWcgz3vFSBHLvMfrxP7B3X0Oj/exec',
+            // Your Google Apps Script Web App URL (same URL for all workshops)
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxo-MRSzZg62Yn24ar0rZAwyuIJ4jKXj4cYCOLJanujHoL6rsL68f-tLrAL6AOHACSQ/exec',
+            
+            // IMPORTANT: Workshop ID must match the key in your Apps Script WORKSHOPS object
+            WORKSHOP_ID: 'rstudio',  // Change this for each workshop: 'datascience', 'rstudio', etc.
             
             // Workshop title
-            WORKSHOP_TITLE: 'WORKSHOP: Basics of R and RStudio',
+            WORKSHOP_TITLE: 'Basics of R and RStudio Workshop',
             
-            // Workshop sessions - add or modify as needed
+            // Workshop sessions - must match session IDs in Apps Script
             SESSIONS: [
                 {
                     id: 'session1',
                     date: 'Thursday, February 12, 2026',
-                    time: '1:00 PM - 4:00 PM',
-                    room: 'Medical Science 2 - 3753'
+                    time: ' 1:00 PM - 4:00 PM',
+                    room: 'MedSciII 3753'
                 },
                 {
                     id: 'session2',
                     date: 'Monday, February 16, 2026',
-                    time: '1:00 PM - 4:00 PM',
-                    room: 'Medical Science 2 - 3733'
+                    time: ' 1:00 PM - 4:00 PM',
+                    room: 'MedSciII 3733'
                 },
                 {
                     id: 'session3',
                     date: 'Thursday, February 26, 2026',
-                    time: '1:00 PM - 4:00 PM',
-                    room: 'Medical Science 2 - 3753'
+                    time: ' 1:00 PM - 4:00 PM',
+                    room: 'MedSciII 3753'
                 }
             ],
             
-            // Maximum enrollees per session
+            // Maximum enrollees per session (must match Apps Script)
             MAX_CAPACITY: 5
         };
         
@@ -331,7 +334,7 @@
                     return;
                 }
                 
-                const response = await fetch(CONFIG.SCRIPT_URL);
+                const response = await fetch(`${CONFIG.SCRIPT_URL}?workshop=${CONFIG.WORKSHOP_ID}`);
                 const data = await response.json();
                 sessionAvailability = data.availability || {};
             } catch (error) {
@@ -426,6 +429,7 @@
             try {
                 // Create form data (NOT JSON - this avoids CORS preflight)
                 const formData = new FormData();
+                formData.append('workshop', CONFIG.WORKSHOP_ID);
                 formData.append('name', name);
                 formData.append('email', email);
                 formData.append('sessions', JSON.stringify(selectedSessions));
