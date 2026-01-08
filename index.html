@@ -272,7 +272,7 @@
         // ============================================
         
         const CONFIG = {
-            // Your Google Apps Script Web App URL (you'll get this after deployment)
+            // Your Google Apps Script Web App URL (paste it here, ending in /exec)
             SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzEkGUDoWSJrTrP3c-CSgLMDS83G6iL-Id8y4H1RUGeJvN7JwplVNdf0itAxIWhAvyYpw/exec',
             
             // Workshop title
@@ -338,7 +338,10 @@
                     return;
                 }
                 
-                const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getAvailability`);
+                const url = CONFIG.SCRIPT_URL.includes('?') 
+                    ? `${CONFIG.SCRIPT_URL}&action=getAvailability`
+                    : `${CONFIG.SCRIPT_URL}?action=getAvailability`;
+                const response = await fetch(url);
                 const text = await response.text();
                 
                 // Check if response is JSON
@@ -436,17 +439,17 @@
                 return;
             }
             
+            // Check if SCRIPT_URL is configured
+            if (CONFIG.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                showMessage('Configuration error: Google Apps Script URL not set. Please contact the administrator.', 'error');
+                return;
+            }
+            
             // Show loading
             document.getElementById('loading').classList.add('show');
             document.getElementById('signupForm').style.display = 'none';
             
             try {
-                // Check if SCRIPT_URL is configured
-                if (CONFIG.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-                    showMessage('Configuration error: Google Apps Script URL not set. Please contact the administrator.', 'error');
-                    return;
-                }
-                
                 const response = await fetch(CONFIG.SCRIPT_URL, {
                     method: 'POST',
                     headers: {
