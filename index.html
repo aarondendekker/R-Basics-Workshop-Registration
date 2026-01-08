@@ -272,42 +272,36 @@
         // ============================================
         
         const CONFIG = {
-            // Your Google Apps Script Web App URL (paste it here, ending in /exec)
-            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyTp5-TIzDsTM_1eQM7Evm6X43I79DTg9O29jn8rI8CXtJs5wGVXpUnuPxYYmLwJv1LIQ/exec',
+            // Your Google Apps Script Web App URL (you'll get this after deployment)
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzm7ddzD3KnORolJgGHMthqzKkR08R7rLzyC7BRK---rt9eGru8Q6YA_43NbtkNdg9F/exec',
             
             // Workshop title
-            WORKSHOP_TITLE: 'Introduction to Data Science',
+            WORKSHOP_TITLE: 'Workshop: Basics of R & RStudio',
             
             // Workshop sessions - add or modify as needed
             SESSIONS: [
                 {
                     id: 'session1',
-                    date: 'Monday, January 20, 2025',
-                    time: '2:00 PM - 4:00 PM',
-                    room: 'Room 305'
+                    date: 'Thursday, February 12, 2026',
+                    time: '1:00 PM - 4:00 PM',
+                    room: 'Medical Science 2 - 3753'
                 },
                 {
                     id: 'session2',
-                    date: 'Wednesday, January 22, 2025',
-                    time: '10:00 AM - 12:00 PM',
-                    room: 'Room 210'
+                    date: 'Monday, February 16, 2026',
+                    time: '1:00 PM - 4:00 PM',
+                    room: 'Medical Science 2 - 3733'
                 },
                 {
                     id: 'session3',
-                    date: 'Friday, January 24, 2025',
-                    time: '3:00 PM - 5:00 PM',
-                    room: 'Room 305'
-                },
-                {
-                    id: 'session4',
-                    date: 'Monday, January 27, 2025',
-                    time: '1:00 PM - 3:00 PM',
-                    room: 'Room 418'
+                    date: 'Thursday, February 26, 2026',
+                    time: '1:00 PM - 4:00 PM',
+                    room: 'Medical Science 2 - 3753'
                 }
             ],
             
             // Maximum enrollees per session
-            MAX_CAPACITY: 10
+            MAX_CAPACITY: 5
         };
         
         // ============================================
@@ -329,38 +323,11 @@
         // Load current session availability from Google Sheets
         async function loadSessionAvailability() {
             try {
-                // Check if SCRIPT_URL is configured
-                if (CONFIG.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-                    console.warn('Script URL not configured - using default availability');
-                    CONFIG.SESSIONS.forEach(session => {
-                        sessionAvailability[session.id] = 0;
-                    });
-                    return;
-                }
-                
-                const url = CONFIG.SCRIPT_URL.includes('?') 
-                    ? `${CONFIG.SCRIPT_URL}&action=getAvailability`
-                    : `${CONFIG.SCRIPT_URL}?action=getAvailability`;
-                const response = await fetch(url);
-                const text = await response.text();
-                
-                // Check if response is JSON
-                if (!text.trim().startsWith('{')) {
-                    console.error('Received non-JSON response. This usually means the Apps Script is not properly deployed or authorized.');
-                    console.error('Response preview:', text.substring(0, 200));
-                    showMessage('Unable to connect to registration system. Please contact the administrator.', 'error');
-                    // Initialize with zeros
-                    CONFIG.SESSIONS.forEach(session => {
-                        sessionAvailability[session.id] = 0;
-                    });
-                    return;
-                }
-                
-                const data = JSON.parse(text);
+                const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getAvailability`);
+                const data = await response.json();
                 sessionAvailability = data.availability || {};
             } catch (error) {
                 console.error('Error loading availability:', error);
-                showMessage('Unable to load session availability. Displaying all sessions as available.', 'error');
                 // Initialize with zeros if load fails
                 CONFIG.SESSIONS.forEach(session => {
                     sessionAvailability[session.id] = 0;
@@ -439,12 +406,6 @@
                 return;
             }
             
-            // Check if SCRIPT_URL is configured
-            if (CONFIG.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-                showMessage('Configuration error: Google Apps Script URL not set. Please contact the administrator.', 'error');
-                return;
-            }
-            
             // Show loading
             document.getElementById('loading').classList.add('show');
             document.getElementById('signupForm').style.display = 'none';
@@ -463,17 +424,7 @@
                     })
                 });
                 
-                const text = await response.text();
-                
-                // Check if response is JSON
-                if (!text.trim().startsWith('{')) {
-                    console.error('Received non-JSON response during submission.');
-                    console.error('Response preview:', text.substring(0, 200));
-                    showMessage('Unable to submit registration. The server returned an unexpected response. Please contact the administrator.', 'error');
-                    return;
-                }
-                
-                const result = JSON.parse(text);
+                const result = await response.json();
                 
                 if (result.success) {
                     showMessage('Registration successful! You will receive a confirmation email shortly.', 'success');
@@ -487,7 +438,7 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('An error occurred during registration. Please check the console and contact the administrator.', 'error');
+                showMessage('An error occurred. Please try again later.', 'error');
             } finally {
                 document.getElementById('loading').classList.remove('show');
                 document.getElementById('signupForm').style.display = 'block';
