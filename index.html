@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop Signup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .sessions-container {
+            margin-top: 30px;
+        }
+        
+        .sessions-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .session-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .session-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+        
+        .session-card.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .session-card.full {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #f5f5f5;
+        }
+        
+        .session-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .session-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .session-date {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .session-details {
+            margin-left: 35px;
+            color: #666;
+        }
+        
+        .session-info {
+            margin-bottom: 5px;
+        }
+        
+        .availability {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        
+        .availability.available {
+            color: #10b981;
+        }
+        
+        .availability.limited {
+            color: #f59e0b;
+        }
+        
+        .availability.full {
+            color: #ef4444;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: transform 0.2s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .message.show {
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="workshopTitle">Introduction to Data Science</h1>
+            <p>Select your preferred session(s) below</p>
+        </div>
+        
+        <div class="content">
+            <div class="message" id="message"></div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px;">Submitting your registration...</p>
+            </div>
+            
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="sessions-container">
+                    <div class="sessions-title">Available Sessions</div>
+                    <div id="sessionsContainer"></div>
+                </div>
+                
+                <button type="submit" class="submit-btn">Register for Selected Sessions</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION SECTION - EDIT THESE VALUES
+        // ============================================
+        
+        const CONFIG = {
+            // Your Google Apps Script Web App URL (you'll get this after deployment)
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycby7EzTd8ZbLK9-KQl1Z3jdkRof0Op32PyIfJnvTO7b3l5Tnjj6OO3stdOrILe5H7YLo7Q/exec',
+            
+            // Workshop title
+            WORKSHOP_TITLE: 'Introduction to Data Science',
+            
+            // Workshop sessions - add or modify as needed
+            SESSIONS: [
+                {
+                    id: 'session1',
+                    date: 'Monday, January 20, 2025',
+                    time: '2:00 PM - 4:00 PM',
+                    room: 'Room 305'
+                },
+                {
+                    id: 'session2',
+                    date: 'Wednesday, January 22, 2025',
+                    time: '10:00 AM - 12:00 PM',
+                    room: 'Room 210'
+                },
+                {
+                    id: 'session3',
+                    date: 'Friday, January 24, 2025',
+                    time: '3:00 PM - 5:00 PM',
+                    room: 'Room 305'
+                },
+                {
+                    id: 'session4',
+                    date: 'Monday, January 27, 2025',
+                    time: '1:00 PM - 3:00 PM',
+                    room: 'Room 418'
+                }
+            ],
+            
+            // Maximum enrollees per session
+            MAX_CAPACITY: 10
+        };
+        
+        // ============================================
+        // END CONFIGURATION SECTION
+        // ============================================
+        
+        // Set workshop title
+        document.getElementById('workshopTitle').textContent = CONFIG.WORKSHOP_TITLE;
+        
+        // Track session availability (will be loaded from server)
+        let sessionAvailability = {};
+        
+        // Initialize the form
+        async function init() {
+            await loadSessionAvailability();
+            renderSessions();
+        }
+        
+        // Load current session availability from Google Sheets
+        async function loadSessionAvailability() {
+            try {
+                // Check if SCRIPT_URL is configured
+                if (CONFIG.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                    console.warn('Script URL not configured - using default availability');
+                    CONFIG.SESSIONS.forEach(session => {
+                        sessionAvailability[session.id] = 0;
+                    });
+                    return;
+                }
+                
+                const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getAvailability`);
+                const text = await response.text();
+                
+                // Check if response is JSON
+                if (!text.trim().startsWith('{')) {
+                    console.error('Received non-JSON response. This usually means the Apps Script is not properly deployed or authorized.');
+                    console.error('Response preview:', text.substring(0, 200));
+                    showMessage('Unable to connect to registration system. Please contact the administrator.', 'error');
+                    // Initialize with zeros
+                    CONFIG.SESSIONS.forEach(session => {
+                        sessionAvailability[session.id] = 0;
+                    });
+                    return;
+                }
+                
+                const data = JSON.parse(text);
+                sessionAvailability = data.availability || {};
+            } catch (error) {
+                console.error('Error loading availability:', error);
+                showMessage('Unable to load session availability. Displaying all sessions as available.', 'error');
+                // Initialize with zeros if load fails
+                CONFIG.SESSIONS.forEach(session => {
+                    sessionAvailability[session.id] = 0;
+                });
+            }
+        }
+        
+        // Render session cards
+        function renderSessions() {
+            const container = document.getElementById('sessionsContainer');
+            container.innerHTML = '';
+            
+            CONFIG.SESSIONS.forEach(session => {
+                const enrolled = sessionAvailability[session.id] || 0;
+                const available = CONFIG.MAX_CAPACITY - enrolled;
+                const isFull = available <= 0;
+                
+                const card = document.createElement('div');
+                card.className = `session-card ${isFull ? 'full' : ''}`;
+                card.innerHTML = `
+                    <div class="session-header">
+                        <input type="checkbox" 
+                               class="session-checkbox" 
+                               name="session" 
+                               value="${session.id}"
+                               id="${session.id}"
+                               ${isFull ? 'disabled' : ''}>
+                        <label for="${session.id}" class="session-date">${session.date}</label>
+                    </div>
+                    <div class="session-details">
+                        <div class="session-info"><strong>Time:</strong> ${session.time}</div>
+                        <div class="session-info"><strong>Location:</strong> ${session.room}</div>
+                        <div class="availability ${isFull ? 'full' : available <= 3 ? 'limited' : 'available'}">
+                            ${isFull ? 'Session Full' : `${available} of ${CONFIG.MAX_CAPACITY} spaces available`}
+                        </div>
+                    </div>
+                `;
+                
+                if (!isFull) {
+                    card.addEventListener('click', (e) => {
+                        if (e.target.type !== 'checkbox') {
+                            const checkbox = card.querySelector('input[type="checkbox"]');
+                            checkbox.checked = !checkbox.checked;
+                            card.classList.toggle('selected', checkbox.checked);
+                        } else {
+                            card.classList.toggle('selected', e.target.checked);
+                        }
+                    });
+                }
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // Show message
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type} show`;
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Handle form submission
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const selectedSessions = Array.from(document.querySelectorAll('input[name="session"]:checked'))
+                .map(cb => cb.value);
+            
+            if (selectedSessions.length === 0) {
+                showMessage('Please select at least one session.', 'error');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('signupForm').style.display = 'none';
+            
+            try {
+                // Check if SCRIPT_URL is configured
+                if (CONFIG.SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                    showMessage('Configuration error: Google Apps Script URL not set. Please contact the administrator.', 'error');
+                    return;
+                }
+                
+                const response = await fetch(CONFIG.SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        sessions: selectedSessions,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
+                const text = await response.text();
+                
+                // Check if response is JSON
+                if (!text.trim().startsWith('{')) {
+                    console.error('Received non-JSON response during submission.');
+                    console.error('Response preview:', text.substring(0, 200));
+                    showMessage('Unable to submit registration. The server returned an unexpected response. Please contact the administrator.', 'error');
+                    return;
+                }
+                
+                const result = JSON.parse(text);
+                
+                if (result.success) {
+                    showMessage('Registration successful! You will receive a confirmation email shortly.', 'success');
+                    document.getElementById('signupForm').reset();
+                    
+                    // Reload availability and re-render
+                    await loadSessionAvailability();
+                    renderSessions();
+                } else {
+                    showMessage(result.message || 'Registration failed. Please try again.', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('An error occurred during registration. Please check the console and contact the administrator.', 'error');
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('signupForm').style.display = 'block';
+            }
+        });
+        
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>
